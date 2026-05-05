@@ -22,6 +22,22 @@ export function NewsFeed() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState<Category>('general');
+  const [userCountry, setUserCountry] = useState('');
+
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        if (data.country_code) {
+          setUserCountry(data.country_code.toLowerCase());
+        }
+      } catch {
+        setUserCountry('us');
+      }
+    };
+    detectCountry();
+  }, []);
 
   const fetchNews = async () => {
     setLoading(true);
@@ -31,6 +47,9 @@ export function NewsFeed() {
       let url = `/api/news?endpoint=top-headlines&country=us&pageSize=20`;
       if (category) {
         url += `&category=${category}`;
+      }
+      if (userCountry) {
+        url += `&userCountry=${userCountry}`;
       }
 
       const response = await fetch(url);
