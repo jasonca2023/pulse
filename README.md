@@ -266,6 +266,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with care by Jason**
-
-![Pulse - Your Daily News, Curated](https://github.com/user-attachments/README/tagline.png)
+## License
