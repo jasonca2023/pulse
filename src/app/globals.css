@@ -295,6 +295,10 @@ body {
   color: var(--muted-foreground);
 }
 
+.readTime {
+  font-weight: 600;
+}
+
 .author {
   white-space: nowrap;
   overflow: hidden;

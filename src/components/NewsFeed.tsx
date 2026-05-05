@@ -181,6 +181,9 @@ export function NewsFeed() {
               <div className="content">
                 <span className="source">{article.source.name}</span>
                 <h3 className="title">{article.title}</h3>
+                <div className="meta">
+                  <span className="readTime">{calculateReadTime(article.content)}</span>
+                </div>
                 {summaries[index] ? (
                   <div className="summaryBox">
                     <p className="summary">{summaries[index]}</p>
