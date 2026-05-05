@@ -1,3 +1,5 @@
+'use client';
+
 import { NewsFeed } from '@/components/NewsFeed';
 import { PulseLogo } from '@/components/PulseLogo';
 import styles from './page.module.css';
@@ -13,7 +15,7 @@ export default function Home() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.logoRow}>
+        <div className={styles.logoRow} onClick={() => window.location.reload()}>
           <div className={styles.logoLeft}>
             <PulseLogo className={styles.logoMark} />
             <div className={styles.logoText}>

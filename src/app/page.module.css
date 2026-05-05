@@ -17,6 +17,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 20px;
+  cursor: pointer;
 }
 
 .logoLeft {
