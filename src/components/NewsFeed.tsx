@@ -23,6 +23,8 @@ export function NewsFeed() {
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState<Category>('general');
   const [userCountry, setUserCountry] = useState('');
+  const [summaries, setSummaries] = useState<Record<number, string>>({});
+  const [loadingSummary, setLoadingSummary] = useState<number | null>(null);
 
   useEffect(() => {
     const detectCountry = async () => {
@@ -38,6 +40,22 @@ export function NewsFeed() {
     };
     detectCountry();
   }, []);
+
+  const generateSummary = async (article: Article, index: number) => {
+    setLoadingSummary(index);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const summary = article.description || 'Summary not available for this article.';
+    setSummaries(prev => ({ ...prev, [index]: summary }));
+    setLoadingSummary(null);
+  };
+
+  const hideSummary = (index: number) => {
+    setSummaries(prev => {
+      const updated = { ...prev };
+      delete updated[index];
+      return updated;
+    });
+  };
 
   const fetchNews = async () => {
     setLoading(true);
@@ -152,13 +170,25 @@ export function NewsFeed() {
               <div className="content">
                 <span className="source">{article.source.name}</span>
                 <h3 className="title">{article.title}</h3>
-                {article.description && (
-                  <p className="description">{article.description}</p>
+                {summaries[index] ? (
+                  <div className="summaryBox">
+                    <p className="summary">{summaries[index]}</p>
+                    <button 
+                      className="hideBtn"
+                      onClick={(e) => { e.stopPropagation(); hideSummary(index); }}
+                    >
+                      Hide
+                    </button>
+                  </div>
+                ) : (
+                  <button 
+                    className="summaryBtn"
+                    onClick={(e) => { e.stopPropagation(); generateSummary(article, index); }}
+                    disabled={loadingSummary === index}
+                  >
+                    {loadingSummary === index ? 'Generating...' : 'AI Summary'}
+                  </button>
                 )}
-                <div className="meta">
-                  {article.author && <span className="author">{article.author}</span>}
-                  <span>{calculateReadTime(article.content)}</span>
-                </div>
               </div>
             </article>
           ))}
