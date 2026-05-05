@@ -27,56 +27,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const localParams = new URLSearchParams({
+    const params = new URLSearchParams({
       apiKey: API_KEY,
-      pageSize: String(Number(pageSize) / 2),
-    });
-
-    const generalParams = new URLSearchParams({
-      apiKey: API_KEY,
-      pageSize: String(Number(pageSize) / 2),
+      pageSize,
     });
 
     if (endpoint === 'top-headlines') {
-      if (userCountry && IP_TO_COUNTRY[userCountry]) {
-        localParams.append('country', IP_TO_COUNTRY[userCountry]);
-        if (category) localParams.append('category', category);
-      } else {
-        localParams.append('country', country);
-        if (category) localParams.append('category', category);
-      }
-
-      generalParams.append('country', country);
-      if (category) generalParams.append('category', category);
+      params.append('country', 'us');
+      if (category) params.append('category', category);
     } else {
-      localParams.append('qInTitle', q);
-      localParams.append('sortBy', 'relevancy');
-      localParams.append('language', 'en');
-
-      generalParams.append('qInTitle', q);
-      generalParams.append('sortBy', 'relevancy');
-      generalParams.append('language', 'en');
+      params.append('qInTitle', q);
+      params.append('sortBy', 'relevancy');
+      params.append('language', 'en');
     }
 
-    const [localRes, generalRes] = await Promise.all([
-      fetch(`${BASE_URL}/${endpoint}?${localParams.toString()}`),
-      fetch(`${BASE_URL}/${endpoint}?${generalParams.toString()}`),
-    ]);
+    const response = await fetch(`${BASE_URL}/${endpoint}?${params.toString()}`);
 
-    const [localData, generalData] = await Promise.all([
-      localRes.ok ? localRes.json() : { articles: [] },
-      generalRes.ok ? generalRes.json() : { articles: [] },
-    ]);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to fetch news' }));
+      return NextResponse.json(
+        { error: error.message || `HTTP error ${response.status}` },
+        { status: response.status }
+      );
+    }
 
-    const combinedArticles = [
-      ...(localData.articles || []),
-      ...(generalData.articles || []),
-    ];
-
-    return NextResponse.json({
-      ...generalData,
-      articles: combinedArticles,
-    });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch news' },

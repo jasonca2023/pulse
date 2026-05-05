@@ -124,13 +124,24 @@ export function NewsFeed() {
     <div>
       <div className="controls">
         <form onSubmit={handleSearch} className="searchForm">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search news..."
-            className="searchInput"
-          />
+          <div className="inputWrapper">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search news..."
+              className="searchInput"
+            />
+            {searchQuery && (
+              <button 
+                type="button" 
+                className="clearBtn"
+                onClick={() => setSearchQuery('')}
+              >
+                ×
+              </button>
+            )}
+          </div>
           <button type="submit" className="searchButton">Search</button>
         </form>
       </div>
