@@ -31,8 +31,9 @@ export async function GET(request: NextRequest) {
         params.append('category', category);
       }
     } else {
-      params.append('q', q);
-      params.append('sortBy', sortBy);
+      params.append('qInTitle', q);
+      params.append('sortBy', 'relevancy');
+      params.append('language', 'en');
     }
 
     const response = await fetch(`${BASE_URL}/${endpoint}?${params.toString()}`);
