@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Pulse - Daily News',
   description: 'Your daily news, curated',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
