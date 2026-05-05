@@ -1,7 +1,5 @@
 # Pulse
 
----
-
 ## Overview
 
 Pulse is a sleek, modern news reader application that delivers real-time news headlines from sources around the world directly to your screen. Built with Next.js and powered by the News API, Pulse provides a clean, dark-themed interface inspired by classic newspapers like The New York Times and The Wall Street Journal.
