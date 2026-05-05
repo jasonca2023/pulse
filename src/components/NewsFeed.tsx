@@ -8,6 +8,14 @@ const ALL_CATEGORIES: { value: Category | ''; label: string }[] = [
   ...CATEGORIES,
 ];
 
+function calculateReadTime(content: string | null): string {
+  if (!content) return '1 min';
+  const wordsPerMinute = 200;
+  const words = content.split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
+}
+
 export function NewsFeed() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,7 +138,7 @@ export function NewsFeed() {
                 )}
                 <div className="meta">
                   {article.author && <span className="author">{article.author}</span>}
-                  <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                  <span>{calculateReadTime(article.content)}</span>
                 </div>
               </div>
             </article>
