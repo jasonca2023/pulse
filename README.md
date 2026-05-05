@@ -1,6 +1,4 @@
-# Pulse - Your Modern News Reader
-
-![Pulse Logo](https://github.com/user-attachments/README/pulse-logo.png)
+# Pulse
 
 ---
 
@@ -263,7 +261,3 @@ MIT License - See [LICENSE](LICENSE) for details.
 - [News API](https://newsapi.org/) for providing news data
 - [ipapi.co](https://ipapi.co/) for location detection
 - Inspired by [The New York Times](https://nytimes.com/) and [The Wall Street Journal](https://wsj.com/)
-
----
-
-## License
