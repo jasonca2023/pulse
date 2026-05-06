@@ -8,6 +8,7 @@ const nextConfig = {
       },
     ],
   },
+  transpilePackages: ['fuse.js'],
 };
 
 module.exports = nextConfig;

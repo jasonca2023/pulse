@@ -109,6 +109,21 @@
   color: var(--error);
 }
 
+.suggestionBtn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.suggestionBtn:hover {
+  color: var(--text-primary);
+}
+
 .spinner {
   display: inline-block;
   width: 14px;
