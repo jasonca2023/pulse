@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Article, NewsApiResponse, CATEGORIES, Category } from '@/types';
 
 const ALL_CATEGORIES: { value: Category | ''; label: string }[] = [
@@ -25,6 +25,53 @@ export function NewsFeed() {
   const [userCountry, setUserCountry] = useState('');
   const [summaries, setSummaries] = useState<Record<number, string>>({});
   const [loadingSummary, setLoadingSummary] = useState<number | null>(null);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+
+  const searchTerms = [
+    'afghanistan', 'albania', 'algeria', 'argentina', 'australia', 'austria', 'bahrain', 'bangladesh', 'belgium', 'brazil',
+    'canada', 'chile', 'china', 'colombia', 'croatia', 'cuba', 'czech', 'denmark', 'egypt', 'finland', 'france', 'germany',
+    'greece', 'honduras', 'hormuz', 'hungary', 'india', 'indonesia', 'iran', 'iraq', 'ireland', 'israel', 'italy', 'japan',
+    'jordan', 'kenya', 'korea', 'kuwait', 'lebanon', 'malaysia', 'mexico', 'morocco', 'netherlands', 'new zealand', 'nigeria',
+    'norway', 'pakistan', 'peru', 'philippines', 'poland', 'portugal', 'qatar', 'romania', 'russia', 'saudi', 'singapore',
+    'south africa', 'spain', 'sweden', 'switzerland', 'syria', 'taiwan', 'thailand', 'turkey', 'uae', 'uk', 'ukraine',
+    'venezuela', 'vietnam', 'yemen',
+    'technology', 'tech', 'sports', 'business', 'entertainment', 'health', 'science', 'politics', 'world', 'news',
+    'election', 'trump', 'biden', 'ai', 'climate', 'economy', 'stock', 'market', 'football', 'basketball', 'soccer',
+    'olympics', 'movie', 'music', 'netflix', 'covid', 'vaccine', 'space', 'nasa', 'war', 'military',
+  ];
+
+  const levenshtein = (a: string, b: string): number => {
+    const matrix: number[][] = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        matrix[i][j] = b.charAt(i - 1) === a.charAt(j - 1)
+          ? matrix[i - 1][j - 1]
+          : Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+      }
+    }
+    return matrix[b.length][a.length];
+  };
+
+  const findClosest = (query: string, terms: string[]): string | null => {
+    const q = query.toLowerCase();
+    let best: string | null = null;
+    let bestScore = Infinity;
+    for (const term of terms) {
+      const score = levenshtein(q, term);
+      if (score < bestScore) {
+        bestScore = score;
+        best = term;
+      }
+    }
+    return best && bestScore <= Math.floor(best.length / 2) + 1 ? best : null;
+  };
+
+  const fuzzySearch = (query: string): string => {
+    const result = findClosest(query, searchTerms);
+    return result || query;
+  };
 
   useEffect(() => {
     const detectCountry = async () => {
@@ -93,6 +140,7 @@ export function NewsFeed() {
 
     setLoading(true);
     setError(null);
+    setSuggestion(null);
 
     try {
       const url = `/api/news?endpoint=everything&q=${encodeURIComponent(searchQuery)}&pageSize=20&sortBy=publishedAt`;
@@ -103,7 +151,20 @@ export function NewsFeed() {
         throw new Error(data.status || 'Failed to search news');
       }
 
-      setArticles(data.articles || []);
+      if (!data.articles || data.articles.length === 0) {
+        const corrected = fuzzySearch(searchQuery);
+        if (corrected.toLowerCase() !== searchQuery.toLowerCase()) {
+          setSuggestion(corrected);
+          const fuzzyUrl = `/api/news?endpoint=everything&q=${encodeURIComponent(corrected)}&pageSize=20&sortBy=publishedAt`;
+          const fuzzyResponse = await fetch(fuzzyUrl);
+          const fuzzyData: NewsApiResponse = await fuzzyResponse.json();
+          setArticles(fuzzyData.articles || []);
+        } else {
+          setArticles([]);
+        }
+      } else {
+        setArticles(data.articles || []);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search news');
     } finally {
@@ -163,7 +224,22 @@ export function NewsFeed() {
       ) : error ? (
         <div className="error">{error}</div>
       ) : articles.length === 0 ? (
-        <div className="noResults">No news found</div>
+        <div className="noResults">
+          {suggestion ? (
+            <div>
+              No results for "{searchQuery}". Did you mean{' '}
+              <button
+                className="suggestionBtn"
+                onClick={() => { setSearchQuery(suggestion); searchNews(); }}
+              >
+                {suggestion}
+              </button>
+              ?
+            </div>
+          ) : (
+            'No news found'
+          )}
+        </div>
       ) : (
         <div className="articlesGrid">
           {articles.map((article, index) => (
